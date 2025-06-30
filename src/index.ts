@@ -49,17 +49,35 @@ export class YoutubeTranscriptNotAvailableLanguageError extends YoutubeTranscrip
 
 export class YoutubeTranscriptEmptyError extends YoutubeTranscriptError {
   constructor(videoId: string, method: string) {
-    super(`The transcript file URL returns an empty response using ${method} (${videoId})`);
+    super(
+      `The transcript file URL returns an empty response using ${method} (${videoId})`
+    );
   }
 }
+
 export interface TranscriptConfig {
   lang?: string;
 }
+
 export interface TranscriptResponse {
   text: string;
   duration: number;
   offset: number;
   lang?: string;
+}
+
+// 添加新的接口来包含视频元数据
+export interface VideoMetadata {
+  title?: string;
+  description?: string;
+  thumbnail?: any;
+  lengthSeconds?: string;
+  viewCount?: string;
+}
+
+export interface VideoTranscriptResponse {
+  transcript: TranscriptResponse[];
+  videoMetadata?: VideoMetadata;
 }
 
 /**
@@ -74,13 +92,13 @@ export class YoutubeTranscript {
   public static async fetchTranscript(
     videoId: string,
     config?: TranscriptConfig
-  ): Promise<TranscriptResponse[]> {
+  ): Promise<VideoTranscriptResponse> {
     try {
       return await this.fetchTranscriptWithHtmlScraping(videoId, config);
     } catch (e) {
       if (e instanceof YoutubeTranscriptEmptyError) {
         return await this.fetchTranscriptWithInnerTube(videoId, config);
-      } else { 
+      } else {
         throw e;
       }
     }
@@ -91,7 +109,10 @@ export class YoutubeTranscript {
    * @param videoId Video url or video identifier
    * @param config Get transcript in a specific language ISO
    */
-  private static async fetchTranscriptWithHtmlScraping(videoId: string, config?: TranscriptConfig) {
+  private static async fetchTranscriptWithHtmlScraping(
+    videoId: string,
+    config?: TranscriptConfig
+  ): Promise<VideoTranscriptResponse> {
     const identifier = this.retrieveVideoId(videoId);
     const videoPageResponse = await fetch(
       `https://www.youtube.com/watch?v=${identifier}`,
@@ -136,7 +157,11 @@ export class YoutubeTranscript {
       throw new YoutubeTranscriptEmptyError(videoId, 'HTML scraping');
     }
 
-    return processedTranscript;
+    return {
+      transcript: processedTranscript,
+      // HTML scraping 方法無法獲取詳細的視頻元數據
+      videoMetadata: undefined,
+    };
   }
 
   /**
@@ -147,7 +172,7 @@ export class YoutubeTranscript {
   private static async fetchTranscriptWithInnerTube(
     videoId: string,
     config?: TranscriptConfig
-  ): Promise<TranscriptResponse[]> {
+  ): Promise<VideoTranscriptResponse> {
     const identifier = this.retrieveVideoId(videoId);
     const options = {
       method: 'POST',
@@ -155,26 +180,35 @@ export class YoutubeTranscript {
         ...(config?.lang && { 'Accept-Language': config.lang }),
         'Content-Type': 'application/json',
         Origin: 'https://www.youtube.com',
-        Referer: `https://www.youtube.com/watch?v=${identifier}`
+        Referer: `https://www.youtube.com/watch?v=${identifier}`,
       },
       body: JSON.stringify({
         context: {
           client: {
             clientName: 'WEB',
             clientVersion: '2.20250312.04.00',
-            userAgent: USER_AGENT
-          }
+            userAgent: USER_AGENT,
+          },
         },
         videoId: identifier,
       }),
-    }
-    
+    };
+
     const InnerTubeApiResponse = await fetch(
       'https://www.youtube.com/youtubei/v1/player',
       options
     );
 
-    const { captions: { playerCaptionsTracklistRenderer: captions } } = await InnerTubeApiResponse.json();
+    const {
+      captions: { playerCaptionsTracklistRenderer: captions },
+      videoDetails: {
+        title,
+        shortDescription,
+        thumbnail,
+        lengthSeconds,
+        viewCount,
+      },
+    } = await InnerTubeApiResponse.json();
 
     const processedTranscript = await this.processTranscriptFromCaptions(
       captions,
@@ -186,7 +220,16 @@ export class YoutubeTranscript {
       throw new YoutubeTranscriptEmptyError(videoId, 'InnerTube API');
     }
 
-    return processedTranscript;
+    return {
+      transcript: processedTranscript,
+      videoMetadata: {
+        title,
+        description: shortDescription,
+        thumbnail,
+        lengthSeconds,
+        viewCount,
+      },
+    };
   }
 
   /**
