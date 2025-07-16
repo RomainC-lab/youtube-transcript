@@ -1,6 +1,6 @@
 # youtube-transcript
 
-[![npm version](https://img.shields.io/npm/v/@danielxceron/youtube-transcript.svg)](https://www.npmjs.com/package/@danielxceron/youtube-transcript)
+[![npm version](https://img.shields.io/npm/v/@folon/youtube-transcript.svg)](https://www.npmjs.com/package/@folon/youtube-transcript)
 
 ## About This Fork
 
@@ -18,19 +18,19 @@ This is a fork of the original youtube-transcript package that adds a **fallback
 ## Installation
 
 ```bash
-$ npm i @danielxceron/youtube-transcript
+$ npm i @folon/youtube-transcript
 ```
 
 or
 
 ```bash
-$ yarn add @danielxceron/youtube-transcript
+$ yarn add @folon/youtube-transcript
 ```
 
 ## Usage
 
 ```js
-import { YoutubeTranscript } from '@danielxceron/youtube-transcript';
+import { YoutubeTranscript } from '@folon/youtube-transcript';
 
 YoutubeTranscript.fetchTranscript('videoId or URL').then(console.log);
 ```

@@ -1,5 +1,5 @@
 {
-  "name": "@danielxceron/youtube-transcript",
+  "name": "@folon/youtube-transcript",
   "version": "1.2.3",
   "description": "Fetch transcript from a youtube video",
   "main": "dist/youtube-transcript.common.js",
@@ -9,9 +9,12 @@
   "scripts": {
     "build": "rollup -c"
   },
-  "author": "Daniel Ceron Claros <danielxceron>",
+  "author": "Romainc-lab <Romainc-lab>",
   "contributors": [
-    "Kakulukian (Original author)"
+    {
+      "name": "Kakulukian",
+      "url": "Original author"
+    }
   ],
   "keywords": [
     "youtube",
@@ -28,13 +31,22 @@
   "files": [
     "dist/*"
   ],
-  "repository": "https://github.com/danielxceron/youtube-transcript.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Romainc-lab/youtube-transcript.git"
+  },
   "publishConfig": {
     "access": "public"
   },
-  "homepage": "https://github.com/danielxceron/youtube-transcript",
+  "homepage": "https://github.com/Romainc-lab/youtube-transcript",
   "engines": {
     "node": ">=18.0.0"
   },
-  "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228"
+  "packageManager": "pnpm@9.12.2+sha512.22721b3a11f81661ae1ec68ce1a7b879425a1ca5b991c975b074ac220b187ce56c708fe5db69f4c962c989452eee76c82877f4ee80f474cebd61ee13461b6228",
+  "directories": {
+    "example": "example"
+  },
+  "bugs": {
+    "url": "https://github.com/Romainc-lab/youtube-transcript/issues"
+  }
 }
